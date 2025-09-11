@@ -9,12 +9,15 @@
  * @author Lenovo
  */
 public class FrmCompleto extends javax.swing.JFrame {
-
+    private java.util.ArrayList<Integer> listaNumeros = new java.util.ArrayList<>();
+    private int pasos = 0;
     /**
      * Creates new form FrmCompleto
      */
     public FrmCompleto() {
         initComponents();
+        txtNumeros.setEditable(false);
+        txtProceso.setEditable(false);
     }
 
     /**
@@ -38,6 +41,11 @@ public class FrmCompleto extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btnCargar.setText("Cargar números");
+        btnCargar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCargarActionPerformed(evt);
+            }
+        });
 
         spnCantidad.setModel(new javax.swing.SpinnerNumberModel(100, 1, 1000, 10));
 
@@ -97,6 +105,27 @@ public class FrmCompleto extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnCargarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCargarActionPerformed
+        // TODO add your handling code here:
+        listaNumeros.clear();
+        txtProceso.setText("");
+        txtNumeros.setText("");
+
+        int cantidad = 100; 
+        try {
+            cantidad = (Integer) spnCantidad.getValue();
+        } catch (Exception e) {
+        }
+
+        java.util.Random rnd = new java.util.Random();
+        for (int i = 0; i < cantidad; i++) {
+            listaNumeros.add(rnd.nextInt(1000) + 1); 
+        }
+
+        txtNumeros.setText(listaNumeros.toString());
+        txtProceso.setText("Se generaron " + listaNumeros.size() + " números.\n");
+    }//GEN-LAST:event_btnCargarActionPerformed
 
     /**
      * @param args the command line arguments
