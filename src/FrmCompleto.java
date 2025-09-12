@@ -8,9 +8,76 @@
  *
  * @author Lenovo
  */
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+
 public class FrmCompleto extends javax.swing.JFrame {
     private java.util.ArrayList<Integer> listaNumeros = new java.util.ArrayList<>();
     private int pasos = 0;
+    
+    private void log(String msg) {
+        txtProceso.append(msg + "\n");
+    }
+    
+    private ArrayList<Integer> mezclaDirecta(ArrayList<Integer> lista) {
+        if (lista == null || lista.size() <= 1) return lista;
+        int medio = lista.size() / 2;
+        ArrayList<Integer> izquierda = new ArrayList<>(lista.subList(0, medio));
+        ArrayList<Integer> derecha  = new ArrayList<>(lista.subList(medio, lista.size()));
+
+        izquierda = mezclaDirecta(izquierda);
+        derecha  = mezclaDirecta(derecha);
+
+        return fusionar(izquierda, derecha);
+    }
+
+    private ArrayList<Integer> fusionar(ArrayList<Integer> a, ArrayList<Integer> b) {
+        ArrayList<Integer> res = new ArrayList<>();
+        int i = 0, j = 0;
+        while (i < a.size() && j < b.size()) {
+            pasos++; 
+            if (a.get(i) <= b.get(j)) {
+                res.add(a.get(i++));
+            } else {
+                res.add(b.get(j++));
+            }
+        }
+        while (i < a.size()) res.add(a.get(i++));
+        while (j < b.size()) res.add(b.get(j++));
+        return res;
+    }
+    
+    private ArrayList<Integer> fusionNatural(ArrayList<Integer> lista) {
+        if (lista == null || lista.size() <= 1) return lista;
+
+        ArrayList<ArrayList<Integer>> runs = new ArrayList<>();
+        ArrayList<Integer> run = new ArrayList<>();
+        run.add(lista.get(0));
+
+        for (int i = 1; i < lista.size(); i++) {
+            if (lista.get(i) >= lista.get(i - 1)) {
+                run.add(lista.get(i));
+            } else {
+                runs.add(new ArrayList<>(run));
+                run.clear();
+                run.add(lista.get(i));
+            }
+        }
+        runs.add(run);
+
+        log("Subsecuencias iniciales: " + runs);
+
+        while (runs.size() > 1) {
+            ArrayList<Integer> left = runs.remove(0);
+            ArrayList<Integer> right = runs.remove(0);
+            ArrayList<Integer> fused = fusionar(left, right);
+            log("Fusión: " + left + " + " + right + " => " + fused);
+            runs.add(fused);
+        }
+
+        return runs.get(0);
+    }
     /**
      * Creates new form FrmCompleto
      */
@@ -19,7 +86,6 @@ public class FrmCompleto extends javax.swing.JFrame {
         txtNumeros.setEditable(false);
         txtProceso.setEditable(false);
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -52,6 +118,11 @@ public class FrmCompleto extends javax.swing.JFrame {
         cmbAlgoritmo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mezcla Directa", "Fusión Natural", "Mezcla Equilibrada Múltiple", "Método Polifásico" }));
 
         btnOrdenar.setText("Ordenar");
+        btnOrdenar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnOrdenarActionPerformed(evt);
+            }
+        });
 
         txtNumeros.setEditable(false);
         txtNumeros.setColumns(20);
@@ -126,6 +197,44 @@ public class FrmCompleto extends javax.swing.JFrame {
         txtNumeros.setText(listaNumeros.toString());
         txtProceso.setText("Se generaron " + listaNumeros.size() + " números.\n");
     }//GEN-LAST:event_btnCargarActionPerformed
+
+    private void btnOrdenarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOrdenarActionPerformed
+        // TODO add your handling code here:
+        if (listaNumeros.isEmpty()) {
+            txtProceso.setText("Primero cargue los números.\n");
+            return;
+        }
+
+        String algoritmo = cmbAlgoritmo.getSelectedItem().toString();
+        txtProceso.setText(""); 
+        pasos = 0; 
+
+        long inicio = System.nanoTime(); 
+        ArrayList<Integer> resultado = null;
+
+        switch (algoritmo) {
+            case "Mezcla Directa":
+                resultado = mezclaDirecta(new ArrayList<>(listaNumeros));
+                break;
+            case "Fusión Natural":
+                resultado = fusionNatural(new ArrayList<>(listaNumeros));
+                break;
+            default:
+                txtProceso.setText("Algoritmo no reconocido.\n");
+                return;
+        }
+
+        long fin = System.nanoTime();
+        long tiempoMs = (fin - inicio) / 1_000_000;
+
+        txtProceso.append("\n--- Resumen ---\n");
+        txtProceso.append("Algoritmo: " + algoritmo + "\n");
+        txtProceso.append("Tiempo de ejecución: " + tiempoMs + " ms\n");
+        txtProceso.append("Pasos contados (aprox.): " + pasos + "\n");
+        txtProceso.append("Resultado (primeros 100 elementos): \n");
+        int limite = Math.min(100, resultado.size());
+        txtProceso.append(resultado.subList(0, limite).toString() + "\n");
+    }//GEN-LAST:event_btnOrdenarActionPerformed
 
     /**
      * @param args the command line arguments
