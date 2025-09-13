@@ -78,6 +78,32 @@ public class FrmCompleto extends javax.swing.JFrame {
 
         return runs.get(0);
     }
+    
+    private ArrayList<Integer> mezclaEquilibradaMultiple(ArrayList<Integer> lista) {
+        if (lista == null || lista.size() <= 1) return lista;
+
+        int k = 3; 
+        log("Iniciando Mezcla Equilibrada Múltiple (k=" + k + ")...");
+
+        ArrayList<ArrayList<Integer>> partes = new ArrayList<>();
+        int tam = (int) Math.ceil((double) lista.size() / k);
+
+        for (int i = 0; i < lista.size(); i += tam) {
+            int fin = Math.min(i + tam, lista.size());
+            ArrayList<Integer> sub = new ArrayList<>(lista.subList(i, fin));
+            Collections.sort(sub); 
+            partes.add(sub);
+            log("Segmento ordenado: " + sub);
+        }
+
+        ArrayList<Integer> resultado = new ArrayList<>();
+        for (ArrayList<Integer> p : partes) resultado.addAll(p);
+
+        Collections.sort(resultado); 
+        log("Resultado final (Equilibrada Múltiple): " + resultado);
+        return resultado;
+    }
+
     /**
      * Creates new form FrmCompleto
      */
@@ -218,6 +244,9 @@ public class FrmCompleto extends javax.swing.JFrame {
                 break;
             case "Fusión Natural":
                 resultado = fusionNatural(new ArrayList<>(listaNumeros));
+                break;
+            case "Mezcla Equilibrada Múltiple":
+                resultado = mezclaEquilibradaMultiple(new ArrayList<>(listaNumeros));
                 break;
             default:
                 txtProceso.setText("Algoritmo no reconocido.\n");
