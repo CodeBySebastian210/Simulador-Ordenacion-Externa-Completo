@@ -103,6 +103,34 @@ public class FrmCompleto extends javax.swing.JFrame {
         log("Resultado final (Equilibrada Múltiple): " + resultado);
         return resultado;
     }
+    
+    private ArrayList<Integer> metodoPolifasico(ArrayList<Integer> lista) {
+        if (lista == null || lista.size() <= 1) return lista;
+        log("Iniciando Método Polifásico (simulado)...");
+
+        ArrayList<ArrayList<Integer>> runs = new ArrayList<>();
+        int i = 0;
+
+        while (i < lista.size()) {
+            int tamCorrida = Math.min((i % 5) + 3, lista.size() - i); 
+            ArrayList<Integer> corrida = new ArrayList<>(lista.subList(i, i + tamCorrida));
+            Collections.sort(corrida);
+            runs.add(corrida);
+            log("Corrida creada: " + corrida);
+            i += tamCorrida;
+        }
+
+        while (runs.size() > 1) {
+            ArrayList<Integer> a = runs.remove(0);
+            ArrayList<Integer> b = runs.remove(0);
+            ArrayList<Integer> fusion = fusionar(a, b);
+            log("Fusionando: " + a + " + " + b + " => " + fusion);
+            runs.add(fusion);
+        }
+
+        log("Resultado final (Polifásico): " + runs.get(0));
+        return runs.get(0);
+    }
 
     /**
      * Creates new form FrmCompleto
@@ -247,6 +275,9 @@ public class FrmCompleto extends javax.swing.JFrame {
                 break;
             case "Mezcla Equilibrada Múltiple":
                 resultado = mezclaEquilibradaMultiple(new ArrayList<>(listaNumeros));
+                break;
+            case "Método Polifásico":
+                resultado = metodoPolifasico(new ArrayList<>(listaNumeros));
                 break;
             default:
                 txtProceso.setText("Algoritmo no reconocido.\n");
